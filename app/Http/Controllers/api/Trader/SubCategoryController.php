@@ -27,7 +27,7 @@ class SubCategoryController extends Controller
         $vali = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'image' => 'required|mimes:png,jpg|max:8000',
-            'category_id' => 'required|not_in:0'
+            'category_id' => 'required|not_in:0|exists:categories,id'
         ]);
         try {
             if ($vali->fails()) {
@@ -38,64 +38,99 @@ class SubCategoryController extends Controller
                 $filename = $request->image;
 
                 $name = time() . '.' . str_replace(' ', '', $filename->getClientOriginalName());
-
-                $filename->storeAs('public/trader/subCategory', $name);
-
             }
             $subCategory = SubCategory::create([
                 'name' => $request->name,
                 'image' => $name,
                 'category_id' => $request->category_id
             ]);
-            return $this->successResponse($subCategory, 'subCategory careateded successfully.');
+            $filename->storeAs('public/trader/subCategory', $name);
 
+            return $this->successResponse($subCategory, 'subCategory careateded successfully.');
         } catch (Exception $e) {
-            return $this->errorResponse('Internal Server Error(فرش السرفر يا اخوان )', 500);
+            return $this->errorResponse('Internal Server Error', 500);
         }
     }
 
     public function update(Request $request, string $id)
     {
+
         $vali = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'image' => 'nullable|mimes:png,jpg|max:8000',
-            'category_id' => 'required|not_in:0'
+            'image' => 'required|mimes:png,jpg|max:8000',
+            'category_id' => 'required|not_in:0|exists:categories,id'
         ]);
         try {
             if ($vali->fails()) {
                 return $this->errorResponse($vali->errors(), 403);
             }
             $Subcategory = SubCategory::find($id);
-            $Subcategory->update([
-                'name' => $request->name,
-                'category_id' => $request->category_id
-            ]);
-            if ($request->hasFile('image')) {
-                File::delete(public_path('storage/SubCategory/') . $Subcategory->image);
-                $filename = $request->image;
+            $check = true;
 
+            if ($request->hasFile('image')) {
+                $imagePath = storage_path('app/public/trader/subCategory/') . $Subcategory->image;
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+                $filename = $request->image;
                 $name = time() . '.' . str_replace(' ', '', $filename->getClientOriginalName());
                 $Subcategory->update([
                     'image' => $name,
                 ]);
-                $filename->storeAs('public/SubCategory', $name);
+                $filename->storeAs('public/trader/subCategory', $name);
+                $SucssesMesssge['image'] = 'image updated successfully';
             }
-            return $this->successResponse($Subcategory, 'SubCategory updated Successfully');
 
+            $keys = ['name', 'category_id'];
+            for ($i = 0; $i < count($keys); $i++) {
+                $property = $keys[$i];
+                if ($request->$property != $Subcategory->$property) {
+                    $Subcategory->$property = $request->$property;
+                    $SucssesMesssge["$keys[$i]"] = $keys[$i] . " " . "updated successfully";
+                    $check = false;
+                }
+            }
+            if ($check) {
+                $SucssesMesssge['info'] = 'No thing to update';
+                return $this->successResponse($Subcategory,   $SucssesMesssge);
+            } else {
+                $Subcategory->save();
+                return $this->successResponse($Subcategory, $SucssesMesssge);
+            }
         } catch (Exception $e) {
-            return $this->errorResponse('Internal Server Error(فرش السيرفر يا اخوان بالصلاة عالنبي)', 500);
+            return $this->errorResponse('Internal server error', 500);
+        }
+    }
+
+    public function edit($id)
+    {
+        try {
+            $Subcategory = SubCategory::find($id);
+            if ($Subcategory) {
+                return $this->successResponse($Subcategory, 'your  Subcategory ');
+            } else
+                return $this->successResponse(NULL, 'your  Subcategory is not found ');
+        } catch (Exception $e) {
+            return $this->errorResponse('Internal server error', 500);
         }
     }
 
     public function destroy($id)
     {
         try {
-            $Subcategory = subCategory::find($id);
-            File::delete(public_path('storage/subCategory/') . $Subcategory->image);
+            $Subcategory = SubCategory::find($id);
+            if (!$Subcategory) {
+                return $this->errorResponse('Subcategory not found', 404);
+            }
+
+            $imagePath = storage_path('app/public/trader/subCategory/') . $Subcategory->image;
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
             $Subcategory->delete();
-            return $this->successResponse($Subcategory, 'SubCategory deleted Successfully');
+            return $this->successResponse(NULL, 'Subcategory deleted Successfully');
         } catch (Exception $e) {
-            return $this->errorResponse('Internal Server Error(فرش السيرفر يا اخوان بالصلاة عالنبي)', 500);
+            return $this->errorResponse('Internal server error', 500);
         }
     }
 }

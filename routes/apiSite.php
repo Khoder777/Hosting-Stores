@@ -23,6 +23,10 @@ use App\Http\Controllers\api\Site\CustomerController as SiteCustomerController;
 |
 */
 
+Route::get('/welcome', function () {
+    return 'Welcome';
+});
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -40,5 +44,4 @@ Route::group(['prefix' => 'site', 'as' => 'customer.', 'middleware' => 'auth:api
 
     Route::get('/', [DashboardController::class, 'index'])->name('home');
     Route::post('customer/logout', [AuthController::class, 'logout'])->name('logout');
-
 });
