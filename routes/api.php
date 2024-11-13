@@ -61,8 +61,10 @@ Route::group(['prefix' => 'dashboard', 'as' => 'admin.', 'middleware' => 'auth:a
 
     Route::group(['as' => 'market.', 'controller' => MarketController::class], function () {
         Route::get('/market', 'index')->name('index');
+        Route::get('/market/{id}/edit', 'edit')->name('edit');
         Route::post('/market/store', 'store')->name('store');
         Route::post('/market/{id}/update', 'update')->name('update');
+        Route::delete('/market/{id}/delete', 'destroy')->name('delete');
         Route::put('/market_change_status/{id}', 'changeStatus')->name('changeStatus');
     });
 

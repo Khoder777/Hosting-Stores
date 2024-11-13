@@ -34,7 +34,7 @@ class MarketOwnerController extends Controller
     {
         try {
             $vali = Validator::make($request->all(), [
-                'email' => 'required|email|unique:users,email',
+                'email' => 'required|email|unique:market_owners,email',
                 'password' => 'required|max:255',
                 'market_id' => 'required|exists:markets,id'
             ]);
@@ -44,7 +44,7 @@ class MarketOwnerController extends Controller
             $MarketOwner = MarketOwner::create([
                 'market_id' => $request->market_id,
                 'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'password' => $request->password,
             ]);
             return $this->successResponse($MarketOwner, 'Market Owner careateded successfully.');
         } catch (Exception $e) {
@@ -67,22 +67,33 @@ class MarketOwnerController extends Controller
     {
         try {
             $vali = Validator::make($request->all(), [
-                'email' => 'required|email|unique:market_owners,email,'.$id,
+                'email' => 'required|email|unique:market_owners,email,' . $id,
                 'password' => 'required|max:255',
-                'market_id' => 'required|not_in:0'
+                'market_id' => 'required|exists:markets,id',
             ]);
             if ($vali->fails()) {
                 return $this->errorResponse($vali->errors(), 403);
             }
 
-            $MarketOwner = MarketOwner::find($id);
-            $MarketOwner->update([
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'market_id' => $request->market_id,
-            ]);
-            return $this->successResponse($MarketOwner, 'Market Owner updated Successfully');
+            $marketOwner = MarketOwner::find($id);
+            $check = true;
+            $keys = ['email', 'password', 'market_id'];
+            for ($i = 0; $i < count($keys); $i++) {
+                $property = $keys[$i];
+                if ($request->$property != $marketOwner->$property) {
+                    $marketOwner->$property = $request->$property;
+                    $SucssesMesssge["$keys[$i]"] = $keys[$i] . " " . "updated successfully";
+                    $check = false;
+                }
+            }
 
+            if ($check) {
+                $SucssesMesssge['info'] = 'No thing to update';
+                return $this->successResponse($marketOwner,   $SucssesMesssge);
+            } else {
+                $marketOwner->save();
+                return $this->successResponse($marketOwner, $SucssesMesssge);
+            }
         } catch (Exception $e) {
             return $this->errorResponse('Internal Server Error(فرش السيرفر يا اخوان بالصلاة عالنبي)', 500);
         }
