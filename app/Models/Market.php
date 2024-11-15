@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\MarketOwner;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Market extends Model
 {
@@ -14,7 +15,8 @@ class Market extends Model
         'status',
     ];
 
-    public function owners(){
-        return $this->hasMany(User::class,'market_id');
+    public function MarketOwners()
+    {
+        return $this->hasMany(MarketOwner::class,);
     }
 }

@@ -9,17 +9,27 @@ class MarketOwner extends Model
 {
     use HasFactory;
 
-    protected $fillable=[
+    protected $fillable = [
         'email',
         'password',
         'market_id'
     ];
 
-    public $with=[
+
+    public $with = [
         'market'
     ];
+    protected $hidden = [
+        'password',
 
-    public function market(){
-        return $this->belongsTo(Market::class,'market_id');
+    ];
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = bcrypt($value);
+    }
+
+    public function market()
+    {
+        return $this->belongsTo(Market::class, 'market_id');
     }
 }

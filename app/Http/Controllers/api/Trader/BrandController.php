@@ -3,27 +3,26 @@
 namespace App\Http\Controllers\api\Trader;
 
 use Exception;
-use App\Models\Category;
+use App\Models\Brand;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
 
-use function PHPUnit\Framework\isEmpty;
-use function PHPUnit\Framework\isNull;
-
-class CategoryController extends Controller
+class BrandController extends Controller
 {
     public function index()
     {
+
         try {
-            $categories = Category::paginate();
-            return $this->successResponse($categories, 'all categories recived successfully.');
+            $brands = Brand::all();
+            if ($brands) {
+                return $this->successResponse($brands);
+            }
         } catch (Exception $e) {
-            return $this->errorResponse('Internal Server Error(فرش السرفر يا اخوان )', 500);
+            return $this->errorResponse('Internal server error: ', 500);
         }
     }
-
     public function store(Request $request)
     {
         $vali = Validator::make($request->all(), [
@@ -39,19 +38,16 @@ class CategoryController extends Controller
                 $filename = $request->image;
                 $name = time() . '.' . str_replace(' ', '', $filename->getClientOriginalName());
             }
-            $category = Category::create([
+            $brand = Brand::create([
                 'name' => $request->name,
                 'image' => $name,
             ]);
-
-            $filename->storeAs('public/trader/Category', $name);
-
-            return $this->successResponse($category, 'category created Successfully');
+            $filename->storeAs('public/trader/Brand', $name);
+            return $this->successResponse($brand, 'Brand created Successfully!');
         } catch (Exception $e) {
-            return $this->errorResponse('Internal Server Error', 500);
+            return $this->errorResponse('Internal server error: ', 500);
         }
     }
-
     public function update(Request $request, string $id)
     {
 
@@ -64,38 +60,38 @@ class CategoryController extends Controller
             if ($vali->fails()) {
                 return $this->errorResponse($vali->errors(), 403);
             }
-            $category = Category::find($id);
+            $brand = Brand::find($id);
             $check = true;
 
             if ($request->hasFile('image')) {
-                $imagePath = storage_path('app/public/trader/Category/') . $category->image;
+                $imagePath = storage_path('app/public/trader/Brand/') . $brand->image;
                 if (file_exists($imagePath)) {
                     unlink($imagePath);
                 }
                 $filename = $request->image;
                 $name = time() . '.' . str_replace(' ', '', $filename->getClientOriginalName());
-                $category->update([
+                $brand->update([
                     'image' => $name,
                 ]);
-                $filename->storeAs('public/trader/Category', $name);
+                $filename->storeAs('public/trader/Brand', $name);
                 $SucssesMesssge['image'] = 'image updated successfully';
             }
 
             $keys = ['name'];
             for ($i = 0; $i < count($keys); $i++) {
                 $property = $keys[$i];
-                if ($request->$property != $category->$property) {
-                    $category->$property = $request->$property;
+                if ($request->$property != $brand->$property) {
+                    $brand->$property = $request->$property;
                     $SucssesMesssge["$keys[$i]"] = $keys[$i] . " " . "updated successfully";
                     $check = false;
                 }
             }
             if ($check) {
                 $SucssesMesssge['info'] = 'No thing to update';
-                return $this->successResponse($category,   $SucssesMesssge);
+                return $this->successResponse($brand,   $SucssesMesssge);
             } else {
-                $category->save();
-                return $this->successResponse($category, $SucssesMesssge);
+                $brand->save();
+                return $this->successResponse($brand, $SucssesMesssge);
             }
         } catch (Exception $e) {
             return $this->errorResponse('Internal server error', 500);
@@ -104,33 +100,29 @@ class CategoryController extends Controller
     public function edit($id)
     {
         try {
-            $category = Category::find($id);
-            if ($category) {
-                return $this->successResponse($category, 'your  category ');
+            $brand = Brand::find($id);
+            if ($brand) {
+                return $this->successResponse($brand, 'your  Brand');
             } else
-                return $this->successResponse(NULL, 'your  category is not found ');
+                return $this->successResponse(NULL, 'your  Brand');
         } catch (Exception $e) {
             return $this->errorResponse('Internal server error', 500);
         }
     }
-
     public function destroy($id)
     {
         try {
-            $category = Category::find($id);
-            if (!$category) {
+            $brand = Brand::find($id);
+            if (!$brand) {
                 return $this->errorResponse('Brand not found', 404);
             }
-            if ($category->subCategories->isEmpty()) {
-                $imagePath = storage_path('app/public/trader/Category/') . $category->image;
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
-                }
-                $category->delete();
-                return $this->successResponse(NULL, 'category deleted Successfully');
-            } else {
-                return $this->errorResponse(' there is subcategory joind with category please delete it and try again later ', 402);
+
+            $imagePath = storage_path('app/public/trader/Brand/') . $brand->image;
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
             }
+            $brand->delete();
+            return $this->successResponse(NULL, 'Brand deleted Successfully');
         } catch (Exception $e) {
             return $this->errorResponse('Internal server error', 500);
         }
