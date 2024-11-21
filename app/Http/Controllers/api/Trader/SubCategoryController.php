@@ -17,7 +17,7 @@ class SubCategoryController extends Controller
             $subcategories = SubCategory::paginate();
             return $this->successResponse($subcategories, 'all sub categories recived successfully.');
         } catch (Exception $e) {
-            return $this->errorResponse('Internal Server Error(فرش السرفر يا اخوان )', 500);
+            return $this->errorResponse('Internal Server Error', 500);
         }
     }
 
@@ -54,13 +54,14 @@ class SubCategoryController extends Controller
 
     public function update(Request $request, string $id)
     {
-
-        $vali = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'image' => 'required|mimes:png,jpg|max:8000',
-            'category_id' => 'required|not_in:0|exists:categories,id'
-        ]);
         try {
+
+
+            $vali = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'image' => 'required|mimes:png,jpg|max:8000',
+                'category_id' => 'required|not_in:0|exists:categories,id'
+            ]);
             if ($vali->fails()) {
                 return $this->errorResponse($vali->errors(), 403);
             }
@@ -122,13 +123,16 @@ class SubCategoryController extends Controller
             if (!$Subcategory) {
                 return $this->errorResponse('Subcategory not found', 404);
             }
-
-            $imagePath = storage_path('app/public/trader/subCategory/') . $Subcategory->image;
-            if (file_exists($imagePath)) {
-                unlink($imagePath);
+            if ($Subcategory->SubCategoeyProperties->isEmpty()) {
+                $imagePath = storage_path('app/public/trader/subCategory/') . $Subcategory->image;
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+                $Subcategory->delete();
+                return $this->successResponse(NULL, 'Subcategory deleted Successfully');
+            } else {
+                return $this->errorResponse('Subcategory cant delete because there is properties belong to it delete its and try again later ', 400);
             }
-            $Subcategory->delete();
-            return $this->successResponse(NULL, 'Subcategory deleted Successfully');
         } catch (Exception $e) {
             return $this->errorResponse('Internal server error', 500);
         }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Ship extends Model
 {
     use HasFactory;
-    protected $fillable=[
+    protected $fillable = [
         'city',
         'shipping',
         'status'
@@ -16,8 +16,10 @@ class Ship extends Model
 
     public function customers()
     {
-        return $this->hasMany(Customer::class,'city_id');
+        return $this->hasMany(Customer::class, 'city_id');
     }
-
-    
+    public function getShippingAttribute($value)
+    {
+        return  number_format($value, 2) . ' $';
+    }
 }

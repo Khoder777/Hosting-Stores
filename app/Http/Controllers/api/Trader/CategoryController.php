@@ -135,4 +135,11 @@ class CategoryController extends Controller
             return $this->errorResponse('Internal server error', 500);
         }
     }
+    public function products($id)
+    {
+        $category = Category::findOrFail($id);
+        $products = $category->products;
+
+        return $this->successResponse($products, '  Successfully');
+    }
 }
