@@ -7,12 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\SubCategoeyProperty;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
-
 class SubCategoeyPropertyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
         try {
@@ -22,8 +19,6 @@ class SubCategoeyPropertyController extends Controller
             return $this->errorResponse('Internal Server Error', 500);
         }
     }
-
-
     public function store(Request $request)
     {
         try {
@@ -97,8 +92,6 @@ class SubCategoeyPropertyController extends Controller
             return $this->errorResponse('Internal Server Error', 500);
         }
     }
-
-
     public function destroy(string $id)
     {
         try {
@@ -118,7 +111,6 @@ class SubCategoeyPropertyController extends Controller
             $attributes = SubCategoeyProperty::get('name')->toArray();
             $collection = collect($attributes);
             $unique = $collection->unique();
-
             $unique = $unique->values()->all();
             return $this->successResponse($unique, 'all properties recived successfully');
         } catch (Exception $e) {

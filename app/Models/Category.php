@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Market;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,5 +24,9 @@ class Category extends Model
     public function Products()
     {
         return $this->hasMany(Product::class);
+    }
+    public function Market()
+    {
+        return $this->belongsTo(Market::class);
     }
 }

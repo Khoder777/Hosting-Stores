@@ -19,12 +19,13 @@ class SubCategory extends Model
     public $with = [
         'category'
     ];
-    public function category()
+
+    public function Category()
     {
         return $this->belongsTo(Category::class);
     }
     public function SubCategoeyProperties()
     {
-        return $this->hasMany(SubCategoeyProperty::class);
+        return $this->hasMany(SubCategoeyProperty::class,);
     }
 }

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('price');
             $table->text('desc');
             $table->integer('rate')->nullable();
-            $table->foreignId('category_id')->references('id')->on('categories');
+            $table->foreignId('sub_category_id')->references('id')->on('categories');
             $table->foreignId('market_id')->references('id')->on('markets');
             $table->timestamps();
         });

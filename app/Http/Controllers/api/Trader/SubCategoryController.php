@@ -5,8 +5,10 @@ namespace App\Http\Controllers\api\Trader;
 use Exception;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
+
 use Illuminate\Support\Facades\Validator;
 
 class SubCategoryController extends Controller
@@ -135,6 +137,44 @@ class SubCategoryController extends Controller
             }
         } catch (Exception $e) {
             return $this->errorResponse('Internal server error', 500);
+        }
+    }
+    public function Category($id)
+    {
+        try {
+            $subCategory = SubCategory::findOrFail($id);
+            $Category = $subCategory->Category;
+            return $this->successResponse($Category, 'Category recived successfully');
+        } catch (Exception $e) {
+            return $this->errorResponse('Internal server error', 500);
+        }
+    }
+    public function Market($id)
+    {
+        try {
+            $subCategory = SubCategory::findOrFail($id);
+            $market = $subCategory->Category->Market;
+            return $this->successResponse($market, 'Market recived successfully');
+        } catch (Exception $e) {
+            return $this->errorResponse('Internal server error', 500);
+        }
+    }
+    public function Products($id)
+    {
+        try {
+            $subCategory = SubCategory::findOrFail($id);
+            $subCategoryProperties = $subCategory->SubCategoeyProperties;
+            foreach ($subCategoryProperties as $subCategoryProperty) {
+                $array[] = $subCategoryProperty->productSubCategoryValues;
+            }
+            foreach ($array as $elements) {
+                foreach ($elements as $element) {
+                    $array2[] = $element->Product;
+                }
+            }
+            return $this->successResponse($array2);
+        } catch (Exception $e) {
+            return $this->errorResponse('internal server error', 500);
         }
     }
 }

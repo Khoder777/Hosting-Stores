@@ -17,9 +17,9 @@ class SubCategoeyProperty extends Model
     }
     public function productSubCategoryValues()
     {
-        return $this->hasMany(productSubCategoryValue::class);
+        return $this->hasMany(productSubCategoryValue::class,'sub_category_property_id','id');
     }
-    public $with = [
-        'SubCategory'
-    ];
+   // public $with = [
+    //    'SubCategory'
+  //  ];
 }

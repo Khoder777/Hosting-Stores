@@ -6,6 +6,7 @@ use Exception;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ProductResource;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 
@@ -137,9 +138,16 @@ class CategoryController extends Controller
     }
     public function products($id)
     {
-        $category = Category::findOrFail($id);
-        $products = $category->products;
-
-        return $this->successResponse($products, '  Successfully');
+        try {
+            $category = Category::findOrFail($id);
+            $products = $category->products;
+            $productsArray = [];
+            foreach ($products as $product) {
+                $productsArray[] = new ProductResource($product);
+            }
+            return $this->successResponse($productsArray, 'Successfully');
+        } catch (Exception $e) {
+            return $this->errorResponse('Internal server error', 500);
+        }
     }
 }

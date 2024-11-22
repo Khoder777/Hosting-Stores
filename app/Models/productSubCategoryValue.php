@@ -11,10 +11,11 @@ class productSubCategoryValue extends Model
     protected $fillable = ['value', 'product_id', 'sub_category_property_id', 'image'];
     public function Product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class,'product_id','id');
     }
     public function SubCategoeyProperty()
     {
         return $this->belongsTo(SubCategoeyProperty::class, 'sub_category_property_id', 'id');
     }
+    public $with=[];
 }

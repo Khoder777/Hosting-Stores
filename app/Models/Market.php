@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
+
+use App\Models\Category;
 use App\Models\MarketOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,10 +16,12 @@ class Market extends Model
         'image',
         'status',
     ];
-  
-
     public function MarketOwners()
     {
         return $this->hasMany(MarketOwner::class,);
+    }
+    public function Categories()
+    {
+        return $this->hasMany(Category::class);
     }
 }

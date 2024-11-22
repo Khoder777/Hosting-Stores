@@ -121,6 +121,14 @@ Route::group(['prefix' => 'trader', 'as' => 'admin.', 'middleware' => 'auth:api'
         Route::post('/subCategory/store', 'store')->name('store');
         Route::post('/subCategory/{id}/update', 'update')->name('update');
         Route::get('/subCategory/{id}/edit', 'edit')->name('edit');
+        Route::get('/subCategory/{id}/Category', 'Category')->name('Category');
+        Route::get('/subCategory/{id}/Market', 'Market')->name('Market');
+        Route::get('/subCategory/{id}/Products', 'Products')->name('products');
+
+
+
+
+
         Route::delete('/subCategory/{id}/delete', 'destroy')->name('delete');
     });
 
