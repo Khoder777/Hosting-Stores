@@ -82,7 +82,7 @@ class productSubCategoryValueController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // try {
+         try {
         $vali = Validator::make($request->all(), [
             'value' => 'required|string',
             'image' => ':png,jpg|max:8000',
@@ -125,9 +125,9 @@ class productSubCategoryValueController extends Controller
             $productsubcategoryvalues->save();
             return $this->successResponse($productsubcategoryvalues, $SucssesMesssge);
         }
-        // } catch (Exception $e) {
-        //     return $this->errorResponse('Internal server error', 500);
-        // }
+        } catch (Exception $e) {
+            return $this->errorResponse('Internal server error', 500);
+        }
     }
 
     /**

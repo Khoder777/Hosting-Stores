@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\api\Admin;
 
-use App\Http\Traits\GeneralTrait;
 use Exception;
+use Carbon\Carbon;
 use App\Models\MarketOwner;
 use Illuminate\Http\Request;
+use App\Http\Traits\GeneralTrait;
+use Spatie\FlareClient\Time\Time;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
@@ -105,5 +107,25 @@ class MarketOwnerController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function login(Request $request)
+    {
+        $vali = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+        if ($vali->fails()) {
+            return $this->errorResponse($vali->errors(), 403);
+        }
+        $marketOwner = MarketOwner::where('email', $request->email)->first();
+        if (!$marketOwner || !Hash::check($request->password, $marketOwner->password)) {
+            return $this->errorResponse('The provided credentials are incorrect', 401);
+        }
+        $expiration = Carbon::now()->addMinutes(10);
+
+        return response()->json([
+            'marketOwner' => $marketOwner,
+            'token' => $marketOwner->createToken('mobile', ['role:marketOwner'], $expiration)->plainTextToken
+        ]);
     }
 }

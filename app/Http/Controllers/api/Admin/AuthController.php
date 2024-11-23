@@ -24,10 +24,6 @@ class AuthController extends Controller
         ]);
         try {
 
-            // $credentials = $request->only(['email', 'password']);
-            // if (!Auth::attempt($credentials)) {
-            //     return response()->json(['message' => 'Invalid credentials'], 401);
-            // }
 
             $user = User::where('email', $request->email)->first();
             if (!$user) {
@@ -38,7 +34,7 @@ class AuthController extends Controller
                     return response()->json(['message' => 'password not correct'], 400);
                 }
             }
-            $token = $user->createToken('auth_token')->plainTextToken;
+            $token = $user->createToken('Admin', ['role:Admin'])->plainTextToken;
 
 
             return response()->json(['token' => $token, 'user' => $user]);

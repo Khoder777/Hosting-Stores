@@ -35,6 +35,8 @@ use App\Http\Controllers\api\trader\productSubCategoryValueController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::post('Customer/login', [CustomerController::class, 'login']);
+Route::post('MarketOwenr/login', [MarketOwnerController::class, 'login']);
 
 Route::group(['prefix' => 'dashboard', 'as' => 'admin.', 'middleware' => 'guest:api'], function () {
 
@@ -96,7 +98,7 @@ Route::group(['prefix' => 'dashboard', 'as' => 'admin.', 'middleware' => 'auth:a
 });
 
 
-Route::group(['prefix' => 'trader', 'as' => 'admin.', 'middleware' => 'auth:api'], function () {
+Route::group(['prefix' => 'trader', 'as' => 'admin.', 'middleware' => [ 'auth:sanctum','MarketOwner']], function () {
     Route::group(['as' => 'category.', 'controller' => CategoryController::class], function () {
         Route::get('/category', 'index')->name('index');
         Route::get('/category/{id}/Products', 'products')->name('CategoryProducts');

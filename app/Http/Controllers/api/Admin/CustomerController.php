@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\api\Admin;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
@@ -14,13 +17,12 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        try{
-            $customers=Customer::paginate();
-            return $this->successResponse($customers,'all customers recived successfully.');
-            }
-            catch(Exception $e){
-                return $this->errorResponse('Internal Server Error(فرش السرفر يا اخوان )',500);
-            }
+        try {
+            $customers = Customer::paginate();
+            return $this->successResponse($customers, 'all customers recived successfully.');
+        } catch (Exception $e) {
+            return $this->errorResponse('Internal Server Error(فرش السرفر يا اخوان )', 500);
+        }
     }
 
     /**
@@ -58,7 +60,7 @@ class CustomerController extends Controller
     public function changeStatus(Request $request, $id)
     {
         $request->validate([
-            'status'=>'required|boolean'
+            'status' => 'required|boolean'
         ]);
         $customer = Customer::findOrFail($id);
         try {
@@ -69,6 +71,24 @@ class CustomerController extends Controller
         } catch (Exception $e) {
             return $this->errorResponse('Internal Server Error(فرش السرفر يا اخوان )', 500);
         }
-
+    }
+    public function login(Request $request)
+    {
+        $vali = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+        if ($vali->fails()) {
+            return $this->errorResponse($vali->errors(), 403);
+        }
+        $customer = Customer::where('email', $request->email)->first();
+        if (!$customer || !Hash::check($request->password, $customer->password)) {
+            return $this->errorResponse('The provided credentials are incorrect', 401);
+        }
+        $expiration = Carbon::now()->addMinutes(10);
+        return response()->json([
+            'customer' => $customer,
+            'token' => $customer->createToken('mobile', ['role:customer'],    $expiration)->plainTextToken
+        ]);
     }
 }
